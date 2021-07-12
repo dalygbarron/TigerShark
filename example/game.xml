@@ -1,0 +1,8 @@
+<game>
+    <name>Death Suckers</name>
+    <screen>
+        <x>1024</x>
+        <y>600</y>
+    </screen>
+    <start><link url="level/start.xml" /></start>
+</game>

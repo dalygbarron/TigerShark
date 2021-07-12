@@ -1,0 +1,7 @@
+build/
+build/*
+*.swo
+*.swp
+*.swn
+.vimrc
+.DS_Store

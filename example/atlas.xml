@@ -1,0 +1,21 @@
+<atlas>
+    <pic>sprites.png</pic>
+    <sprite name="chicken">
+        <x>1</x>
+        <y>1</y>
+        <w>12</w>
+        <h>23</h>
+    </sprite>
+    <sprite name="bongo">
+        <x>23</x>
+        <y>12</y>
+        <w>23</w>
+        <h>5</h>
+    </sprite>
+    <sprite name="idiot">
+        <x>21</x>
+        <y>1</y>
+        <w>18</w>
+        <h>23</h>
+    </sprite>
+</atlas>
