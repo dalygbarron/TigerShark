@@ -23,6 +23,14 @@ Util::Rect Gfx::Atlas::getSprite(char const *name) const {
     }
 }
 
+std::unordered_map<std::string, Util::Rect>::const_iterator Gfx::Atlas::getSpritesBegin() const {
+    return this->sprites.cbegin();
+}
+
+std::unordered_map<std::string, Util::Rect>::const_iterator Gfx::Atlas::getSpritesEnd() const {
+    return this->sprites.cend();
+}
+
 bool Gfx::Atlas::xmlLoad(pugi::xml_node const &node) {
     pugi::xml_node picNode = node.child("pic");
     if (!picNode) {

@@ -5,7 +5,7 @@
 #include <iostream>
 
 Gfx::Batch2D::Batch2D(
-    Gfx::Texture &texture,
+    Gfx::Texture const &texture,
     Gfx::Shader &shader,
     unsigned int max
 ):

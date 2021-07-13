@@ -105,6 +105,18 @@ namespace Gfx {
              */
             Util::Rect getSprite(char const *name) const;
 
+            /**
+             * Gives you an iterator to the start of the sprites.
+             * @return the iterator.
+             */
+            std::unordered_map<std::string, Util::Rect>::const_iterator getSpritesBegin() const;
+
+            /**
+             * Gives you the iterator thing to the end of the sprites.
+             * @return the end iterator bit.
+             */
+            std::unordered_map<std::string, Util::Rect>::const_iterator getSpritesEnd() const;
+
             bool xmlLoad(pugi::xml_node const &node) override;
 
         private:
@@ -195,7 +207,7 @@ namespace Gfx {
              *        render.
              */
             Batch2D(
-                Gfx::Texture &texture,
+                Gfx::Texture const &texture,
                 Gfx::Shader &shader,
                 unsigned int max
             );
@@ -229,7 +241,7 @@ namespace Gfx {
             void render() const;
 
         private:
-            Gfx::Texture &texture;
+            Gfx::Texture const &texture;
             Gfx::Shader &shader;
             mutable bool rendered;
             unsigned int n;
