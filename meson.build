@@ -6,7 +6,13 @@ core_sources = [
   'src/Texture.cc',
   'src/Atlas.cc',
   'src/IO.cc',
-  'src/Rect.cc'
+  'src/Rect.cc',
+  'src/Config.cc'
+]
+editor_sources = [
+  'src/editor/Editor.cc',
+  'src/editor/LevelFrame.cc',
+  'src/editor/main.cc'
 ]
 test_sources = [
   'src/test/testIO.cc',
@@ -24,6 +30,9 @@ deps = [
   dependency('spdlog', version: '>=1.8.5'),
   dependency('pugixml', version: '>=1.11')
 ]
+editor_deps = [
+  dependency('wxwidgets')
+]
 test_deps = [
   dependency('Catch2', version: '>=2.13.6')
 ]
@@ -32,11 +41,14 @@ main = executable(
   sources: core_sources + ['src/main.cc'],
   dependencies: deps
 )
+editor = executable(
+  'editor',
+  sources: core_sources + editor_sources,
+  dependencies: deps + editor_deps
+)
 unit_test = executable(
   'unit_test',
   sources: core_sources + test_sources,
   dependencies: deps + test_deps
 )
 test('unit', unit_test, workdir: meson.current_source_dir())
-test('smoke', main, args: '-b')
-

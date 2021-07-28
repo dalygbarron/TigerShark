@@ -1,6 +1,7 @@
 #include "Gfx.hh"
 #include "Util.hh"
 #include "IO.hh"
+#include "Config.hh"
 #include "gl.hh"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -9,39 +10,20 @@
 #include <spdlog/spdlog.h>
 #include <iostream>
 
-/**
- * Entrance to the program.
- * @return status code of trhe program.
- */
 int main() {
     spdlog::info("Welcome to Tiger Shark Engine: Extreme Sex edition");
     sf::Clock clock;
     {
         // running the stuff.
-        sf::ContextSettings settings;
-        settings.depthBits = 24;
-        settings.stencilBits = 8;
-        settings.antialiasingLevel = 0;
-        settings.majorVersion = 3;
-        settings.minorVersion = 3;
-        settings.attributeFlags = sf::ContextSettings::Attribute::Core;
-        sf::Window window(
-            sf::VideoMode(800, 600),
-            "Shoiirk",
-            sf::Style::Default,
-            settings
-        );
-        window.setVerticalSyncEnabled(true);
-        window.setActive(true);
-        glm::vec2 fromScreen(2.0 / 800, 2.0 / 600);
+        std::unique_ptr<sf::Window> window(Config::createWindow("Shoik"));
+        glm::vec2 fromScreen(2.0 / Config::WIDTH, 2.0 / Config::HEIGHT);
         // setting up more stuff
         Gfx::Shader shader;
         if (!shader.loadFromFile("frag.frag", "vert.vert")) goto end;
         Gfx::Atlas atlas;
-        if (!IO::xmlLoadFromFile(atlas, "atlas.xml")) goto end;
+        if (!IO::xmlLoadFromFile(atlas, "sprites.xml")) goto end;
         shader.setVec2("fromScreen", fromScreen);
         shader.setVec2("fromTexture", atlas.getTexture().getFrom());
-        window.setActive(true);
         Gfx::Batch2D batch(atlas.getTexture(), shader, 5000);
         // Play some nice music
         sf::Music music;
@@ -52,7 +34,7 @@ int main() {
         while (true) {
             // Handle events.
             sf::Event event;
-            while (window.pollEvent(event)) {
+            while (window->pollEvent(event)) {
                 if (event.type == sf::Event::Closed) {
                     goto end;
                 } else if (event.type == sf::Event::Resized) {
@@ -84,7 +66,7 @@ int main() {
                 }
             }
             batch.render();
-            window.display();
+            window->display();
         }
     }
     end:

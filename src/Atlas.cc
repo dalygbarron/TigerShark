@@ -34,7 +34,7 @@ std::unordered_map<std::string, Util::Rect>::const_iterator Gfx::Atlas::getSprit
 bool Gfx::Atlas::xmlLoad(pugi::xml_node const &node) {
     pugi::xml_node picNode = node.child("pic");
     if (!picNode) {
-        spdlog::error("atlas node has no pic node");
+        IO::logXmlError("atlas node has no pic node", node);
         return false;
     }
     bool result = this->texture.xmlLoad(picNode);
@@ -47,7 +47,7 @@ bool Gfx::Atlas::xmlLoad(pugi::xml_node const &node) {
         rect.xmlLoad(sprite);
         char const *name = sprite.attribute("name").value();
         if (!name || name[0] == 0) {
-            spdlog::warn("sprite with no name in atlas");
+            IO::logXmlError("sprite with no name in atlas", sprite);
             continue;
         }
         this->sprites[name] = rect;
