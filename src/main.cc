@@ -19,8 +19,8 @@ int main() {
         glm::vec2 fromScreen(2.0 / Config::WIDTH, 2.0 / Config::HEIGHT);
         // setting up more stuff
         Gfx::Shader shader;
-        if (!shader.loadFromFile("frag.frag", "vert.vert")) goto end;
         Gfx::Atlas atlas;
+        if (!shader.loadFromFile("frag.frag", "vert.vert")) goto end;
         if (!IO::xmlLoadFromFile(atlas, "sprites.xml")) goto end;
         shader.setVec2("fromScreen", fromScreen);
         shader.setVec2("fromTexture", atlas.getTexture().getFrom());

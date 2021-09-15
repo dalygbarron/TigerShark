@@ -37,8 +37,7 @@ bool Gfx::Atlas::xmlLoad(pugi::xml_node const &node) {
         IO::logXmlError("atlas node has no pic node", node);
         return false;
     }
-    bool result = this->texture.xmlLoad(picNode);
-    if (!result) return false;
+    if (!this->texture.xmlLoad(picNode)) return false;
     for (pugi::xml_node sprite = node.child("sprite");
         sprite;
         sprite = sprite.next_sibling("sprite")

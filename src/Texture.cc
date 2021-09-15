@@ -27,6 +27,21 @@ glm::vec2 Gfx::Texture::getFrom() const {
     return this->from;
 }
 
+void Gfx::Texture::create(unsigned int width, unsigned int height) {
+    this->free();
+    this->size.x = width;
+    this->size.y = height;
+    this->from.x = 1.0 / width;
+    this->from.y = 1.0 / height;
+    gl(GenTextures(1, &(this->id)));
+    gl(BindTexture(GL_TEXTURE_2D, this->id));
+    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));       
+    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    gl(BindTexture(GL_TEXTURE_2D, 0));
+}
+
 bool Gfx::Texture::loadFromFile(char const *filename) {
     this->free();
     sf::Image image;
@@ -36,16 +51,8 @@ bool Gfx::Texture::loadFromFile(char const *filename) {
     }
     image.flipVertically();
     sf::Vector2u size = image.getSize();
-    this->size.x = size.x;
-    this->size.y = size.y;
-    this->from.x = 1.0 / size.x;
-    this->from.y = 1.0 / size.y;
-    gl(GenTextures(1, &(this->id)));
+    this->createBlank(size.x, size.y);
     gl(BindTexture(GL_TEXTURE_2D, this->id));
-    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));       
-    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-    gl(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
     gl(TexImage2D(
         GL_TEXTURE_2D,
         0,

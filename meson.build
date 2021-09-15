@@ -9,11 +9,6 @@ core_sources = [
   'src/Rect.cc',
   'src/Config.cc'
 ]
-editor_sources = [
-  'src/editor/Editor.cc',
-  'src/editor/LevelFrame.cc',
-  'src/editor/main.cc'
-]
 test_sources = [
   'src/test/testIO.cc',
   'src/test/testXmlLoad.cc',
@@ -28,10 +23,8 @@ deps = [
   dependency('sfml-graphics', version : '>=2.5'),
   dependency('glm', version: '>=0.9.9'),
   dependency('spdlog', version: '>=1.8.5'),
-  dependency('pugixml', version: '>=1.11')
-]
-editor_deps = [
-  dependency('wxwidgets')
+  dependency('pugixml', version: '>=1.11'),
+  dependency(
 ]
 test_deps = [
   dependency('Catch2', version: '>=2.13.6')
@@ -40,11 +33,6 @@ main = executable(
   'main',
   sources: core_sources + ['src/main.cc'],
   dependencies: deps
-)
-editor = executable(
-  'editor',
-  sources: core_sources + editor_sources,
-  dependencies: deps + editor_deps
 )
 unit_test = executable(
   'unit_test',

@@ -59,6 +59,15 @@ namespace Gfx {
              */
             glm::vec2 getFrom() const;
 
+
+            /**
+             * Creates the texture with a given size, but without putting
+             * anything in it so arbitrary data will be there I guess.
+             * @param width width of the texture in pixels.
+             * @param height height of the texture in pixels.
+             */
+            void create(unsigned int width, unsigned int height);
+
             /**
              * Creates the texture on the gpu.
              */
