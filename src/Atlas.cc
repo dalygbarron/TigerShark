@@ -1,6 +1,8 @@
 #include "Gfx.hh"
 #include <spdlog/spdlog.h>
 
+char const *Gfx::Atlas::QUERY = "SELECT * FROM sprite WHERE image = ?";
+
 Gfx::Atlas::~Atlas() {
     this->free();
 }
@@ -23,33 +25,19 @@ Util::Rect Gfx::Atlas::getSprite(char const *name) const {
     }
 }
 
-std::unordered_map<std::string, Util::Rect>::const_iterator Gfx::Atlas::getSpritesBegin() const {
+std::unordered_map<std::string, Util::Rect>::const_iterator
+    Gfx::Atlas::getSpritesBegin() const
+{
     return this->sprites.cbegin();
 }
 
-std::unordered_map<std::string, Util::Rect>::const_iterator Gfx::Atlas::getSpritesEnd() const {
+std::unordered_map<std::string, Util::Rect>::const_iterator
+    Gfx::Atlas::getSpritesEnd() const
+{
     return this->sprites.cend();
 }
 
-bool Gfx::Atlas::xmlLoad(pugi::xml_node const &node) {
-    pugi::xml_node picNode = node.child("pic");
-    if (!picNode) {
-        IO::logXmlError("atlas node has no pic node", node);
-        return false;
-    }
-    if (!this->texture.xmlLoad(picNode)) return false;
-    for (pugi::xml_node sprite = node.child("sprite");
-        sprite;
-        sprite = sprite.next_sibling("sprite")
-    ) {
-        Util::Rect rect;
-        rect.xmlLoad(sprite);
-        char const *name = sprite.attribute("name").value();
-        if (!name || name[0] == 0) {
-            IO::logXmlError("sprite with no name in atlas", sprite);
-            continue;
-        }
-        this->sprites[name] = rect;
-    }
-    return true;
+bool Gfx::Atlas::load(IO::DB &db, char const *file) {
+    this->free();
+
 }

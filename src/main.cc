@@ -8,29 +8,89 @@
 #include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
 #include <spdlog/spdlog.h>
+#include <tclap/CmdLine.h>
 #include <iostream>
 
-int main() {
-    spdlog::info("Welcome to Tiger Shark Engine: Extreme Sex edition");
-    sf::Clock clock;
-    {
+struct Options {
+    bool error = false;
+    bool dry = false;
+    bool atlas = false;
+    bool editor = false;
+};
+
+Options getOptions(int argc, char **argv) {
+    Options options;
+    try {
+        TCLAP::CmdLine cmd("Tiger Shark Engine", ' ', Config::VERSION);
+        TCLAP::SwitchArg dry(
+            "d",
+            "dry",
+            "do not begin interaction",
+            cmd,
+            false
+        );
+        TCLAP::SwitchArg atlas(
+            "a",
+            "atlas",
+            "Generate texture atlas",
+            cmd,
+            false
+        );
+        TCLAP::SwitchArg editor(
+            "e",
+            "editor",
+            "run the tiger shark editor",
+            cmd,
+            false
+        );
+        cmd.parse(argc, argv);
+        options.dry = dry.getValue();
+        options.atlas = atlas.getValue();
+        options.editor = editor.getValue();
+    } catch (TCLAP::ArgException &e) {
+        spdlog::error("argument error: {}", e.error());
+        options.error = true;
+    }
+    return options;
+}
+
+int main(int argc, char **argv) {
+    struct Options options = getOptions(argc, argv);
+    if (options.error) {
+        goto end;
+    } else if (options.atlas) {
+        if (!Gfx::createAtlas(
+            "sprites",
+            "sprites.png",
+            "sprites.xml",
+            Config::ATLAS_WIDTH,
+            Config::ATLAS_HEIGHT
+        )) {
+            goto end;
+        }
+    }
+    if (!options.dry) {
+        spdlog::info("Welcome to Tiger Shark Engine: Extreme Sex edition");
         // running the stuff.
         std::unique_ptr<sf::Window> window(Config::createWindow("Shoik"));
         glm::vec2 fromScreen(2.0 / Config::WIDTH, 2.0 / Config::HEIGHT);
         // setting up more stuff
         Gfx::Shader shader;
         Gfx::Atlas atlas;
-        if (!shader.loadFromFile("frag.frag", "vert.vert")) goto end;
-        if (!IO::xmlLoadFromFile(atlas, "sprites.xml")) goto end;
+        {
+            IO::DB db("game.db", SQLITE_OPEN_READWRITE);
+            if (!shader.load(db, "default")) goto end;
+            if (!atlas.load(db, "sprites.png")) goto end;
+        }
+        if (true) return 69;
         shader.setVec2("fromScreen", fromScreen);
         shader.setVec2("fromTexture", atlas.getTexture().getFrom());
         Gfx::Batch2D batch(atlas.getTexture(), shader, 5000);
         // Play some nice music
         sf::Music music;
-        if (music.openFromFile("ging.ogg")) {
-            music.play();
-        }
+        if (music.openFromFile("ging.ogg")) music.play();
         // main loop
+        sf::Clock clock;
         while (true) {
             // Handle events.
             sf::Event event;

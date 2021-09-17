@@ -4,6 +4,15 @@
 #include <fstream>
 #include <sstream>
 
+char const *Gfx::Shader::QUERY = 
+    "SELECT frag.label, frag.data, vert.label, vert.data "
+    "FROM shader "
+    "LEFT JOIN file frag "
+    "ON frag.id = shader.frag "
+    "LEFT JOIN file vert "
+    "ON vert.id = shader.vert "
+    "WHERE shader.label = ?1;";
+
 Gfx::Shader::~Shader() {
     this->free();
 }
@@ -17,46 +26,38 @@ void Gfx::Shader::free() {
     this->id = 0;
 }
 
-bool Gfx::Shader::loadFromFile(char const *frag, char const *vert) {
-    // TODO: delete existing stuff if there is any.
-    std::stringstream fragBuffer;
-    std::stringstream vertBuffer;
-    std::ifstream fileStream;
-    fileStream.open(frag);
-    if (fileStream.fail()) {
-        spdlog::error("Could not open frag shader '{}'", frag);
+bool Gfx::Shader::load(IO::DB &db, char const *name) {
+    this->free();
+    unsigned int fragShader = 0;
+    unsigned int vertShader = 0;
+    sqlite3_stmt *query = db.prepare(Gfx::Shader::QUERY);
+    sqlite3_bind_text(query, 1, name, -1, SQLITE_STATIC);
+    bool found = false;
+    db.exec(query, [query, &fragShader, &vertShader, &found]() mutable {
+        found = true;
+        char const *fragName = (char const *)sqlite3_column_text(query, 0);
+        char const *fragText = (char const *)sqlite3_column_text(query, 1);
+        char const *vertName = (char const *)sqlite3_column_text(query, 2);
+        char const *vertText = (char const *)sqlite3_column_text(query, 3);
+        fragShader = Gfx::shaderFromString(fragText, GL_FRAGMENT_SHADER);
+        if (fragShader == 0) {
+            spdlog::error("error in fragmentShader {}", fragName);
+            return;
+        }
+        vertShader = Gfx::shaderFromString(vertText, GL_VERTEX_SHADER);
+        if (vertShader == 0) {
+            spdlog::error("error in vertex shader {}", vertName);
+            gl(DeleteShader(fragShader));
+            return;
+        }
+    });
+    if (!found) {
+        spdlog::error("could not find shader program {}", name);
         return false;
     }
-    fragBuffer << fileStream.rdbuf();
-    fileStream.close();
-    unsigned int fragShader = Gfx::shaderFromString(
-        fragBuffer.str().c_str(),
-        GL_FRAGMENT_SHADER
-    );
-    if (fragShader == 0) {
-        spdlog::error("error above for frag shader '{}'", frag);
-        return false;
-    }
-    fileStream.open(vert);
-    if (fileStream.fail()) {
-        spdlog::error("Could not open vert shader '{}'", vert);
-        gl(DeleteShader(fragShader));
-        return false;
-    }
-    vertBuffer << fileStream.rdbuf();
-    fileStream.close();
-    unsigned int vertShader = Gfx::shaderFromString(
-        vertBuffer.str().c_str(),
-        GL_VERTEX_SHADER
-    );
-    if (vertShader == 0) {
-        spdlog::error("error above for vert shader '{}'", frag);
-        gl(DeleteShader(fragShader));
-        return false;
-    }
+    if (fragShader == 0 || vertShader == 0) return false;
     this->id = gl(CreateProgram());
     gl(AttachShader(this->id, fragShader));
-    gl(CheckError());
     gl(AttachShader(this->id, vertShader));
     gl(LinkProgram(this->id));
     gl(DeleteShader(fragShader));
@@ -66,12 +67,7 @@ bool Gfx::Shader::loadFromFile(char const *frag, char const *vert) {
     if (!success) {
         char infoLog[512];
         gl(GetProgramInfoLog(this->id, 512, NULL, infoLog));
-        spdlog::error(
-            "opengl error linking frag '{}' and vert '{}': {}",
-            frag,
-            vert,
-            infoLog
-        );
+        spdlog::error("opengl error linking {}: {}", name, infoLog);
         this->id = 0;
         return false;
     }

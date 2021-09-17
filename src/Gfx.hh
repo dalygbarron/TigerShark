@@ -15,11 +15,10 @@
  * @param file is the file we are currently in.
  * @param line is the line of the file we are currently in.
  */
-GLenum glCheckError_(const char *file, int line);
+GLenum _glCheckError(const char *file, int line);
 
-#define glCheckError() glCheckError_(__FILE__, __LINE__) 
 // TODO: only do this on debug builds maybe
-#define gl(call) gl##call; glCheckError_(__FILE__, __LINE__)
+#define gl(call) gl##call; _glCheckError(__FILE__, __LINE__)
 
 /**
  * Where graphics related shit is stored.
@@ -28,7 +27,7 @@ namespace Gfx {
     /**
      * A texture living on the graphics card.
      */
-    class Texture: public IO::XmlLoad {
+    class Texture {
         public:
             /**
              * Destroys the texture.
@@ -59,7 +58,6 @@ namespace Gfx {
              */
             glm::vec2 getFrom() const;
 
-
             /**
              * Creates the texture with a given size, but without putting
              * anything in it so arbitrary data will be there I guess.
@@ -73,8 +71,6 @@ namespace Gfx {
              */
             bool loadFromFile(char const *filename);
 
-            bool xmlLoad(pugi::xml_node const &node) override;
-
         private:
             unsigned int id = 0;
             glm::uvec2 size;
@@ -84,8 +80,10 @@ namespace Gfx {
     /**
      * Texture atlas that stores sprites by name.
      */
-    class Atlas: public IO::XmlLoad {
+    class Atlas {
         public:
+            static char const *QUERY;
+
             /**
              * Destroys the atlas's texture which it created itself.
              */
@@ -118,15 +116,23 @@ namespace Gfx {
              * Gives you an iterator to the start of the sprites.
              * @return the iterator.
              */
-            std::unordered_map<std::string, Util::Rect>::const_iterator getSpritesBegin() const;
+            std::unordered_map<std::string, Util::Rect>::const_iterator
+                getSpritesBegin() const;
 
             /**
              * Gives you the iterator thing to the end of the sprites.
              * @return the end iterator bit.
              */
-            std::unordered_map<std::string, Util::Rect>::const_iterator getSpritesEnd() const;
+            std::unordered_map<std::string, Util::Rect>::const_iterator
+                getSpritesEnd() const;
 
-            bool xmlLoad(pugi::xml_node const &node) override;
+            /**
+             * Loads the atlas from the database.
+             * @param db is the database connection.
+             * @param file is the name of the image file the atlas is built on.
+             * @return true iff it loaded right.
+             */
+            bool load(IO::DB &db, char const *file);
 
         private:
             Texture texture;
@@ -138,6 +144,7 @@ namespace Gfx {
      */
     class Shader {
         public:
+            static char const *QUERY;
             /**
              * Destroys whatever shader bits are currently present here.
              */
@@ -155,13 +162,13 @@ namespace Gfx {
             void free();
 
             /**
-             * Loads a shader from a file. If this object already has one then
-             * that one is deleted first.
-             * @param frag is the fragment shader filename.
-             * @param vert is the vertex shader filename.
-             * @return true iff all went well.
+             * Loads a shader program from the database.
+             * @param db is the database connection.
+             * @param name is the name of the shader program to load.
+             * @return true only if it was a success. If the shader was not
+             *         there or it failed or whatever then false is returned.
              */
-            bool loadFromFile(char const *frag, char const *vert);
+            bool load(IO::DB &db, char const *name);
 
             /**
              * Sets a float uniform.
@@ -277,6 +284,24 @@ namespace Gfx {
      * @return the id of the shader. If it is 0 then something went wrong.
      */
     unsigned int shaderFromString(char const *data, GLenum type);
+
+    /**
+     * Creates a spritesheet in the filesystem.
+     * @param folder is the path to the sprites folder.
+     * @param outImage is the path to where to save the compiled image.
+     * @param outXml is the path to where to save the compiled xml.
+     * @param maxWidth is the maximum image width.
+     * @param maxHeight is the maximum image height.
+     *        also be smaller when possible.
+     * @return true iff it was successful.
+     */
+    bool createAtlas(
+        char const *folder,
+        char const *outImage,
+        char const *outXml,
+        unsigned int maxWidth,
+        unsigned int maxHeight
+    );
 };
 
 #endif

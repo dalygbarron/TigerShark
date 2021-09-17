@@ -11,7 +11,7 @@ namespace Util {
     /**
      * Represents a rectangle.
      */
-    class Rect: public IO::XmlLoad {
+    class Rect {
         public:
             glm::ivec2 pos;
             glm::ivec2 size;
@@ -29,8 +29,6 @@ namespace Util {
              * @param h is the h value.
              */
             Rect(int x, int y, int w, int h);
-
-            bool xmlLoad(pugi::xml_node const &node) override;
     };
 };
 

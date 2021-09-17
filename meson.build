@@ -6,12 +6,12 @@ core_sources = [
   'src/Texture.cc',
   'src/Atlas.cc',
   'src/IO.cc',
+  'src/DB.cc',
   'src/Rect.cc',
   'src/Config.cc'
 ]
 test_sources = [
   'src/test/testIO.cc',
-  'src/test/testXmlLoad.cc',
   'src/test/test.cc'
 ]
 deps = [
@@ -23,8 +23,8 @@ deps = [
   dependency('sfml-graphics', version : '>=2.5'),
   dependency('glm', version: '>=0.9.9'),
   dependency('spdlog', version: '>=1.8.5'),
-  dependency('pugixml', version: '>=1.11'),
-  dependency(
+  dependency('tclap', version: '>=1.0'),
+  dependency('sqlite3', version: '>=3.28')
 ]
 test_deps = [
   dependency('Catch2', version: '>=2.13.6')

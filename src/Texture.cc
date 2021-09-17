@@ -51,7 +51,7 @@ bool Gfx::Texture::loadFromFile(char const *filename) {
     }
     image.flipVertically();
     sf::Vector2u size = image.getSize();
-    this->createBlank(size.x, size.y);
+    this->create(size.x, size.y);
     gl(BindTexture(GL_TEXTURE_2D, this->id));
     gl(TexImage2D(
         GL_TEXTURE_2D,
@@ -66,13 +66,4 @@ bool Gfx::Texture::loadFromFile(char const *filename) {
     ));
     gl(BindTexture(GL_TEXTURE_2D, 0));
     return true;
-}
-
-bool Gfx::Texture::xmlLoad(pugi::xml_node const &node) {
-    char const *url = IO::parseString(node);
-    if (!url) {
-        IO::logXmlError("No pic location", node);
-        return false;
-    }
-    return this->loadFromFile(url);
 }

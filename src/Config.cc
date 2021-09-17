@@ -1,5 +1,7 @@
 #include "Config.hh"
 
+char const *Config::VERSION = "0.1.0";
+
 sf::Window *Config::createWindow(char const *title) {
     sf::ContextSettings settings;
     settings.depthBits = 24;

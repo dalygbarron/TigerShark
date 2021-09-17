@@ -11,12 +11,14 @@
 namespace Config {
     int const WIDTH = 1024;
     int const HEIGHT = 600;
+    int const ATLAS_WIDTH = 2048;
+    int const ATLAS_HEIGHT = 1024;
+    extern char const *VERSION;
 
     /**
      * Creates a window with the settings that we need.
      * @param title is the title to give to the window.
-     * @return the created window object which you must note is a pointer to
-     *         something allocated on the heap.
+     * @return pointer to the created window.
      */
     sf::Window *createWindow(char const *title);
 };
